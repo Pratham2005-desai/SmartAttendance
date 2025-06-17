@@ -3,6 +3,5 @@ gunicorn
 flask_cors
 werkzeug
 pymongo
-qrcode
-bson
+qrcode  
 pandas
