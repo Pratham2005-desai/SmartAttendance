@@ -26,6 +26,9 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(attendance_bp)
 app.register_blueprint(leave_bp)
 
+from create_temp_admin import create_temp_admin
+create_temp_admin()
+
 # Only run Flask dev server locally
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
