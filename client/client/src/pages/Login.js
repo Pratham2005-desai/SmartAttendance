@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,7 +12,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { collegeId, password });
+      const res = await api.post('/api/auth/login', { collegeId, password });
       login(res.data.user, res.data.token);
       setMessage('Login successful');
       // redirect to dashboard based on role
