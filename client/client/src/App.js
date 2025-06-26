@@ -15,6 +15,7 @@ import ViewAttendance from './pages/ViewAttendance';
 import ManualMarkAttendance from './pages/ManualMarkAttendance';
 import AdminRegister from './pages/AdminRegister';
 import Heatmap from './components/Heatmap';
+import ChangePassword from './components/ChangePassword'; // corrected import path
 
 function App() {
   const { user } = useAuth();
@@ -101,6 +102,11 @@ function App() {
         <Route
           path="/admin-register"
           element={isAdmin ? <AdminRegister /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/change-password"
+          element={user ? <ChangePassword /> : <Navigate to="/login" />}
         />
 
         {/* Catch-all */}
