@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app import db
+from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -51,14 +51,22 @@ def login():
         college_id = data.get("collegeId")
         password = data.get("password")
 
-        if not college_id or not password:
-            return jsonify({"error": "College ID and password are required"}), 400
+        print("📩 Login attempt:", data)
 
         user = db.users.find_one({"collegeId": college_id})
+        print("👤 Fetched user:", user)
+
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        if not check_password_hash(user.get("password_hash", ""), password):
+        password_hash = user.get("password_hash", "")
+        print("🔐 Stored Hash:", password_hash)
+        print("🔑 Password Entered:", password)
+
+        password_valid = check_password_hash(password_hash, password)
+        print("✅ Password Valid:", password_valid)
+
+        if not password_valid:
             return jsonify({"error": "Invalid password"}), 400
 
         return jsonify({
@@ -76,5 +84,32 @@ def login():
         }), 200
 
     except Exception as e:
-        print("Login Error:", e)
+        print("🚨 Login Exception:", e)
         return jsonify({"error": "Internal Server Error"}), 500
+
+@auth_bp.route("/change-password", methods=["POST"])
+def change_password():
+    try:
+        data = request.json
+        email = data.get("email")
+        current_password = data.get("currentPassword")
+        new_password = data.get("newPassword")
+
+        if not email or not current_password or not new_password:
+            return jsonify({"error": "All fields are required"}), 400
+
+        user = db.users.find_one({"email": email})
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        if not check_password_hash(user.get("password_hash", ""), current_password):
+            return jsonify({"error": "Current password is incorrect"}), 400
+
+        new_hashed = generate_password_hash(new_password)
+        db.users.update_one({"email": email}, {"$set": {"password_hash": new_hashed}})
+
+        return jsonify({"message": "Password updated successfully"}), 200
+
+    except Exception as e:
+        print("Change password error:", e)
+        return jsonify({"error": "Server error"}), 500
