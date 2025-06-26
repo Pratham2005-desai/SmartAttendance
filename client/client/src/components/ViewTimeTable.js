@@ -10,9 +10,11 @@ const StudentTimetable = () => {
     const fetchTimetable = async () => {
       try {
         const res = await axios.get(`/api/timetable/${user.class}`);
-        setTimetable(res.data);
+        const data = Array.isArray(res.data) ? res.data : res.data?.timetable || [];
+        setTimetable(data);
       } catch (error) {
-        console.error('Failed to load timetable:', error);
+        console.error('❌ Failed to load timetable:', error);
+        setTimetable([]); // fallback
       }
     };
 
@@ -28,12 +30,15 @@ const StudentTimetable = () => {
         <div key={day} style={{ marginBottom: '1rem' }}>
           <h4 style={{ color: '#222' }}>{day}</h4>
           <ul style={{ paddingLeft: '1.2rem' }}>
-            {timetable.filter(entry => entry.day === day).map(session => (
-              <li key={session._id} style={{ marginBottom: '0.3rem' }}>
-                <strong>{session.subject}</strong> with {session.teacher} (
-                {session.startTime} - {session.endTime})
-              </li>
-            ))}
+            {Array.isArray(timetable) &&
+              timetable
+                .filter(entry => entry.day === day)
+                .map(session => (
+                  <li key={session._id} style={{ marginBottom: '0.3rem' }}>
+                    <strong>{session.subject}</strong> with {session.teacher} (
+                    {session.startTime} - {session.endTime})
+                  </li>
+              ))}
           </ul>
         </div>
       ))}
