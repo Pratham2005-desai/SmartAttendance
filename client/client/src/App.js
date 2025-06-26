@@ -16,13 +16,16 @@ import ManualMarkAttendance from './pages/ManualMarkAttendance';
 import AdminRegister from './pages/AdminRegister';
 import Heatmap from './components/Heatmap';
 import ChangePassword from './components/ChangePassword'; // corrected import path
+import SuperAdminSwitcher from './pages/SuperAdminSwitcher';
 
 function App() {
   const { user } = useAuth();
 
-  const isStudent = user?.role === 'student';
-  const isTeacher = user?.role === 'teacher';
-  const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.role === 'superadmin';
+  const isStudent = user?.role === 'student' || isSuperAdmin;
+  const isTeacher = user?.role === 'teacher' || isSuperAdmin;
+  const isAdmin = user?.role === 'admin' || isSuperAdmin;
+
 
   return (
     <Router>
@@ -108,6 +111,12 @@ function App() {
           path="/change-password"
           element={user ? <ChangePassword /> : <Navigate to="/login" />}
         />
+        {/* Super Admin Switcher */}
+        <Route
+          path="/superadmin"
+          element={isSuperAdmin ? <SuperAdminSwitcher /> : <Navigate to="/login" />}
+        />
+
 
         {/* Catch-all */}
         <Route path="*" element={<p style={{ padding: '1rem' }}>404 - Page Not Found</p>} />
